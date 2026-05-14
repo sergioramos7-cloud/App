@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#1a3a6b"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -12,84 +12,87 @@
 <title>GSN Customer Service Order</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#eef2f8;color:#1a2a4a;overscroll-behavior:none}
-input,textarea{font-family:inherit}
-input:focus,textarea:focus{outline:none;border-color:#1a3a6b!important;background:#fff!important;box-shadow:0 0 0 3px rgba(26,58,107,.12)}
-button{font-family:inherit;cursor:pointer}
-#install-banner{display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
-  width:calc(100% - 32px);max-width:448px;background:#1a3a6b;color:#fff;
-  border-radius:12px;padding:12px 16px;z-index:999;
-  flex-direction:row;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
-#install-banner.show{display:flex}
+body{font-family:Arial,sans-serif;background:#eef2f8;color:#1a2a4a;overscroll-behavior:none}
+input,textarea,button{font-family:inherit}
+input:focus,textarea:focus{outline:none;border-color:#1a3a6b!important;background:#fff!important}
+.inp{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #d0d7e3;font-size:15px;background:#f8fafd;color:#1a2a4a;margin-bottom:2px}
+.lbl{display:block;font-size:11px;font-weight:700;color:#3a5080;margin-bottom:4px;text-transform:uppercase}
+.sec{font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:12px;text-transform:uppercase;border-bottom:2px solid #1a3a6b;padding-bottom:4px}
+.card{background:#f0f4fa;border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid #d8e2f0}
+.tinp{width:100%;padding:9px 6px;border-radius:8px;border:1.5px solid #d0d7e3;font-size:14px;background:#f8fafd;color:#1a2a4a;text-align:center;font-family:monospace}
+.svcbtn{padding:14px 10px;border-radius:12px;border:1.5px solid #d0d7e3;background:#f8fafd;text-align:left;display:flex;align-items:center;gap:8px;width:100%;cursor:pointer}
+.svcbtn.on{border:2px solid #1a3a6b;background:#e8eef8}
+.navbtn{flex:1;padding:13px;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
-<div id="app" style="max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column"></div>
-<div id="install-banner">
-  <span style="font-size:28px">&#128242;</span>
-  <div style="flex:1">
-    <div style="font-size:13px;font-weight:700">Instalar como app</div>
-    <div style="font-size:11px;opacity:.8">Accede sin navegador desde tu pantalla de inicio</div>
-  </div>
-  <button id="btn-install" style="background:#fff;color:#1a3a6b;border:none;border-radius:8px;padding:7px 14px;font-weight:700;font-size:13px">Instalar</button>
-  <button id="btn-dismiss" style="background:none;border:none;color:#fff;font-size:20px;line-height:1;padding:0 4px">&#215;</button>
-</div>
-<script>
-// ── Helpers ──────────────────────────────────────────────────
-function parseTime(raw){
-  var d=raw.replace(/\D/g,'');
-  if(!d)return'';
-  var h,m;
-  if(d.length<=2){h=d;m='00';}
-  else{h=d.slice(0,d.length-2);m=d.slice(-2);}
-  var hh=Math.min(parseInt(h)||0,23).toString().padStart(2,'0');
-  var mm=Math.min(parseInt(m)||0,59).toString().padStart(2,'0');
-  return hh+':'+mm;
-}
-function toMin(t){
-  if(!t||t.indexOf(':')<0)return null;
-  var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1]);
-}
-function dayHours(row){
-  var mf=toMin(row.mf),mt=toMin(row.mt),af=toMin(row.af),at=toMin(row.at);
-  var mor=(mf!==null&&mt!==null&&mt>mf)?mt-mf:0;
-  var aft=(af!==null&&at!==null&&at>af)?at-af:0;
-  var tot=mor+aft;
-  return tot>0?parseFloat((tot/60).toFixed(2)):0;
-}
-function f2(n){return parseFloat(n).toFixed(2);}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+<div id="app"></div>
 
-// ── Folio ────────────────────────────────────────────────────
-function getFolio(){return parseInt(localStorage.getItem('gsn_folio')||'2441');}
-function saveFolio(n){localStorage.setItem('gsn_folio',n);}
+<script>
+// ── Utilities ────────────────────────────────────────────────
+function parseTime(raw) {
+  var d = raw.replace(/\D/g, '');
+  if (!d) return '';
+  var h, m;
+  if (d.length <= 2) { h = d; m = '00'; }
+  else { h = d.slice(0, d.length - 2); m = d.slice(-2); }
+  return Math.min(parseInt(h)||0,23).toString().padStart(2,'0') + ':' +
+         Math.min(parseInt(m)||0,59).toString().padStart(2,'0');
+}
+function toMin(t) {
+  if (!t || t.indexOf(':') < 0) return null;
+  var p = t.split(':'); return parseInt(p[0])*60 + parseInt(p[1]);
+}
+function dayHrs(row) {
+  var mf=toMin(row.mf), mt=toMin(row.mt), af=toMin(row.af), at=toMin(row.at);
+  var m = (mf!==null && mt!==null && mt>mf) ? mt-mf : 0;
+  var a = (af!==null && at!==null && at>af) ? at-af : 0;
+  return (m+a) > 0 ? parseFloat(((m+a)/60).toFixed(2)) : 0;
+}
+function f2(n) { return parseFloat(n||0).toFixed(2); }
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function getFolio() { return parseInt(localStorage.getItem('gsn_folio')||'2441'); }
+function saveFolio(n) { localStorage.setItem('gsn_folio', n); }
 
 // ── State ────────────────────────────────────────────────────
-function emptyRow(){return{date:'',mf:'',mt:'',af:'',at:'',travel:'',obs:''};}
-function emptyForm(){return{
-  projNr:'',addr:'',orderNr:'',name:'',machNr:'',type:'',
-  svc:{startup:false,trouble:false,training:false,warranty:false,retool:false,maint:false,others:false},
-  rows:[0,1,2,3,4,5].map(emptyRow),
-  fault:'',cause:'',solution:'',additionalReport:false,
-  techName:'',placeDate:''
-};}
-var S={form:emptyForm(),step:0,folio:getFolio(),pdfDone:false};
-var app=document.getElementById('app');
-function re(patch){if(patch)Object.assign(S,patch);draw();}
-function rf(patch){S.form=Object.assign({},S.form,patch);draw();}
-function rr(i,patch){var rows=S.form.rows.slice();rows[i]=Object.assign({},rows[i],patch);rf({rows:rows});}
+function emptyRow() { return {date:'',mf:'',mt:'',af:'',at:'',travel:'',obs:''}; }
+function emptyForm() {
+  return {
+    projNr:'', addr:'', orderNr:'', name:'', machNr:'', type:'',
+    svc:{startup:false,trouble:false,training:false,warranty:false,retool:false,maint:false,others:false},
+    rows: [0,1,2,3,4,5].map(emptyRow),
+    fault:'', cause:'', solution:'', additionalReport:false,
+    techName:'', placeDate:''
+  };
+}
+var S = { form: emptyForm(), step: 0, folio: getFolio(), pdfDone: false };
+
+function setState(patch) { Object.assign(S, patch); draw(); }
+function setForm(patch) { S.form = Object.assign({}, S.form, patch); draw(); }
+function setRow(i, patch) {
+  var rows = S.form.rows.slice();
+  rows[i] = Object.assign({}, rows[i], patch);
+  setForm({rows: rows});
+}
 
 // ── PDF ──────────────────────────────────────────────────────
-function buildPDF(form,folio){
-  var svcMap={startup:'Machine start up',trouble:'Troubleshooting',training:'Training',
+function buildPDF(form, folio) {
+  var svcMap = {startup:'Machine start up',trouble:'Troubleshooting',training:'Training',
     warranty:'Warranty',retool:'Retooling',maint:'Maintenance',others:'Others'};
-  var tw=form.rows.reduce(function(s,r){return s+dayHours(r);},0);
-  var tt=form.rows.reduce(function(s,r){return s+(parseFloat(r.travel)||0);},0);
-  function cb(v){return '<span style="display:inline-block;width:9px;height:9px;border:1px solid #333;background:'+(v?'#333':'white')+';margin-right:3px;vertical-align:middle"></span>';}
-  var rowsHTML=form.rows.map(function(r,i){
-    var dh=dayHours(r);
+  var tw = form.rows.reduce(function(s,r){return s+dayHrs(r);},0);
+  var tt = form.rows.reduce(function(s,r){return s+(parseFloat(r.travel)||0);},0);
+  var logoURL = window.location.href.replace(/\/[^\/]*$/, '') + '/logo.jpg';
+
+  function chk(v) {
+    return '<span style="display:inline-block;width:9px;height:9px;border:1px solid #333;background:'+(v?'#333':'white')+';margin-right:3px;vertical-align:middle"></span>';
+  }
+
+  var rows = form.rows.map(function(r,i) {
+    var dh = dayHrs(r);
     return '<tr style="background:'+(i%2===0?'#f5f5f5':'white')+'">'
-      +'<td style="border:1px solid #ccc;padding:3px 5px;text-align:center;height:20px">'+esc(r.date)+'</td>'
+      +'<td style="border:1px solid #ccc;padding:3px 5px;text-align:center">'+esc(r.date)+'</td>'
       +'<td style="border:1px solid #ccc;padding:3px 5px;text-align:center">'+esc(r.mf)+'</td>'
       +'<td style="border:1px solid #ccc;padding:3px 5px;text-align:center">'+esc(r.mt)+'</td>'
       +'<td style="border:1px solid #ccc;padding:3px 5px;text-align:center">'+esc(r.af)+'</td>'
@@ -99,17 +102,17 @@ function buildPDF(form,folio){
       +'<td style="border:1px solid #ccc;padding:3px 5px;text-align:center">'+esc(r.obs)+'</td>'
       +'</tr>';
   }).join('');
-  var svcHTML=Object.keys(svcMap).map(function(k){
-    return '<div style="display:flex;align-items:center;gap:3px;font-size:8.5px;margin-bottom:2px">'+cb(form.svc[k])+svcMap[k]+'</div>';
+
+  var svcCells = Object.keys(svcMap).map(function(k) {
+    return '<div style="display:flex;align-items:center;gap:3px;font-size:8.5px;margin-bottom:2px">'+chk(form.svc[k])+svcMap[k]+'</div>';
   }).join('');
 
-  // Logo URL — absolute so it resolves from blob context
-  var logoURL=window.location.href.replace(/[^/]*$/,'')+'logo.jpg';
+  var th = 'border:1px solid #888;padding:3px 5px;text-align:center;background:#d8d8d8;font-weight:bold';
 
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"/>'
-    +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;font-size:9.5px;color:#000;background:white}'
-    +'@media print{@page{margin:10mm;size:A4}}</style></head><body>'
-    +'<div style="padding:20px 24px;background:white;max-width:760px">'
+    +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:9.5px;color:#000}@media print{@page{margin:10mm;size:A4}}</style>'
+    +'</head><body><div style="padding:20px 24px;max-width:760px">'
+    // Header
     +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'
       +'<div style="flex:1">'
         +'<div style="font-size:15px;font-weight:bold;margin-bottom:3px">GSN Maquinaria-Servicios-CNC, S.A. de C.V.</div>'
@@ -127,12 +130,13 @@ function buildPDF(form,folio){
         +'</div>'
       +'</div>'
     +'</div>'
+    // Fields
     +'<div style="display:flex;gap:20px;margin-bottom:10px">'
       +'<div style="flex:1">'
         +'<div style="font-size:14px;font-weight:bold;margin-bottom:5px">CUSTOMER SERVICE ORDER</div>'
         +'<div style="margin-bottom:4px;font-size:9px">Project Nr: <span style="border-bottom:1px solid #000;display:inline-block;min-width:160px">'+esc(form.projNr)+'</span></div>'
         +'<div style="margin-bottom:2px;font-size:9px">Customer address - Client:</div>'
-        +'<div style="border:1px solid #999;min-height:55px;padding:4px 6px;font-size:8.5px;background:#fafafa;white-space:pre-wrap">'+esc(form.addr)+'</div>'
+        +'<div style="border:1px solid #999;min-height:55px;padding:4px 6px;font-size:8.5px;white-space:pre-wrap">'+esc(form.addr)+'</div>'
       +'</div>'
       +'<div style="flex:1">'
         +'<div style="font-weight:bold;margin-bottom:5px;font-size:10px">Work sheet</div>'
@@ -140,227 +144,238 @@ function buildPDF(form,folio){
         +'<div style="margin-bottom:4px;font-size:9px"><b>Name:</b> <span style="border-bottom:1px solid #000;display:inline-block;min-width:140px">'+esc(form.name)+'</span></div>'
         +'<div style="margin-bottom:4px;font-size:9px"><b>Machine - Nr.:</b> <span style="border-bottom:1px solid #000;display:inline-block;min-width:120px">'+esc(form.machNr)+'</span></div>'
         +'<div style="margin-bottom:6px;font-size:9px"><b>Type:</b> <span style="border-bottom:1px solid #000;display:inline-block;min-width:150px">'+esc(form.type)+'</span></div>'
-        +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;row-gap:2px;column-gap:4px">'+svcHTML+'</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px">'+svcCells+'</div>'
       +'</div>'
     +'</div>'
+    // Table
     +'<table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:8.5px">'
-      +'<thead>'
-        +'<tr>'
-          +'<th rowspan="2" style="border:1px solid #888;padding:3px 5px;text-align:center;background:#d8d8d8">Date 20</th>'
-          +'<th colspan="2" style="border:1px solid #888;padding:3px 5px;text-align:center;background:#d8d8d8">Morning</th>'
-          +'<th colspan="2" style="border:1px solid #888;padding:3px 5px;text-align:center;background:#d8d8d8">Afternoon</th>'
-          +'<th rowspan="2" style="border:1px solid #888;padding:3px 5px;text-align:center;background:#d8d8d8">Total hrs</th>'
-          +'<th rowspan="2" style="border:1px solid #888;padding:3px 5px;text-align:center;background:#d8d8d8">Travel hrs</th>'
-          +'<th rowspan="2" style="border:1px solid #888;padding:3px 5px;text-align:center;background:#d8d8d8;width:28%">Observation</th>'
-        +'</tr>'
-        +'<tr>'
-          +'<th style="border:1px solid #888;padding:2px 4px;text-align:center;background:#d8d8d8;font-size:7.5px">From</th>'
-          +'<th style="border:1px solid #888;padding:2px 4px;text-align:center;background:#d8d8d8;font-size:7.5px">To</th>'
-          +'<th style="border:1px solid #888;padding:2px 4px;text-align:center;background:#d8d8d8;font-size:7.5px">From</th>'
-          +'<th style="border:1px solid #888;padding:2px 4px;text-align:center;background:#d8d8d8;font-size:7.5px">To</th>'
-        +'</tr>'
-      +'</thead>'
-      +'<tbody>'+rowsHTML
-        +'<tr style="background:#d0d0d0;font-weight:bold">'
-          +'<td colspan="5" style="border:1px solid #888;padding:3px 8px;text-align:right">Total:</td>'
-          +'<td style="border:1px solid #888;padding:3px 5px;text-align:center">'+f2(tw)+'</td>'
-          +'<td style="border:1px solid #888;padding:3px 5px;text-align:center">'+f2(tt)+'</td>'
-          +'<td style="border:1px solid #888"></td>'
-        +'</tr>'
-      +'</tbody>'
-    +'</table>'
-    +'<div style="margin-bottom:8px"><b style="font-size:9px">Fault:</b><div style="border-bottom:1px solid #bbb;min-height:20px;padding:2px 4px;font-size:8.5px;margin-top:1px">'+esc(form.fault)+'</div><div style="border-bottom:1px solid #bbb;min-height:14px"></div></div>'
-    +'<div style="margin-bottom:8px"><b style="font-size:9px">Cause:</b><div style="border-bottom:1px solid #bbb;min-height:20px;padding:2px 4px;font-size:8.5px;margin-top:1px">'+esc(form.cause)+'</div><div style="border-bottom:1px solid #bbb;min-height:14px"></div></div>'
-    +'<div style="margin-bottom:8px"><b style="font-size:9px">Solution:</b><div style="border-bottom:1px solid #bbb;min-height:20px;padding:2px 4px;font-size:8.5px;margin-top:1px">'+esc(form.solution)+'</div><div style="border-bottom:1px solid #bbb;min-height:14px"></div><div style="border-bottom:1px solid #bbb;min-height:14px"></div></div>'
-    +'<div style="text-align:right;margin-bottom:12px;font-size:8.5px">'+cb(form.additionalReport)+' Additional report</div>'
+    +'<thead><tr>'
+      +'<th rowspan="2" style="'+th+'">Date 20</th>'
+      +'<th colspan="2" style="'+th+'">Morning</th>'
+      +'<th colspan="2" style="'+th+'">Afternoon</th>'
+      +'<th rowspan="2" style="'+th+'">Total hrs</th>'
+      +'<th rowspan="2" style="'+th+'">Travel hrs</th>'
+      +'<th rowspan="2" style="'+th+';width:28%">Observation</th>'
+    +'</tr><tr>'
+      +'<th style="'+th+';font-size:7.5px">From</th><th style="'+th+';font-size:7.5px">To</th>'
+      +'<th style="'+th+';font-size:7.5px">From</th><th style="'+th+';font-size:7.5px">To</th>'
+    +'</tr></thead>'
+    +'<tbody>'+rows
+      +'<tr style="background:#d0d0d0;font-weight:bold">'
+        +'<td colspan="5" style="border:1px solid #888;padding:3px 8px;text-align:right">Total:</td>'
+        +'<td style="border:1px solid #888;padding:3px 5px;text-align:center">'+f2(tw)+'</td>'
+        +'<td style="border:1px solid #888;padding:3px 5px;text-align:center">'+f2(tt)+'</td>'
+        +'<td style="border:1px solid #888"></td>'
+      +'</tr>'
+    +'</tbody></table>'
+    // FCS
+    +'<div style="margin-bottom:8px"><b>Fault:</b><div style="border-bottom:1px solid #bbb;min-height:20px;padding:2px 4px;margin-top:1px">'+esc(form.fault)+'</div><div style="border-bottom:1px solid #bbb;min-height:14px"></div></div>'
+    +'<div style="margin-bottom:8px"><b>Cause:</b><div style="border-bottom:1px solid #bbb;min-height:20px;padding:2px 4px;margin-top:1px">'+esc(form.cause)+'</div><div style="border-bottom:1px solid #bbb;min-height:14px"></div></div>'
+    +'<div style="margin-bottom:8px"><b>Solution:</b><div style="border-bottom:1px solid #bbb;min-height:20px;padding:2px 4px;margin-top:1px">'+esc(form.solution)+'</div><div style="border-bottom:1px solid #bbb;min-height:14px"></div><div style="border-bottom:1px solid #bbb;min-height:14px"></div></div>'
+    +'<div style="text-align:right;margin-bottom:12px;font-size:8.5px">'+chk(form.additionalReport)+' Additional report</div>'
+    // Signatures
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:6px">'
-      +'<div><div style="font-size:8.5px;font-weight:bold;margin-bottom:4px">GSN (Name &amp; Signature)</div>'
-        +'<div style="border-top:1px solid #000;min-height:40px;padding:4px 2px;font-size:8.5px">'+esc(form.techName)+'</div></div>'
-      +'<div style="text-align:center"><div style="font-size:8.5px;font-weight:bold;margin-bottom:4px">Place and Date:</div>'
-        +'<div style="border-top:1px solid #000;min-height:40px;padding:4px 2px;font-size:8.5px">'+esc(form.placeDate)+'</div></div>'
-      +'<div><div style="font-size:8.5px;font-weight:bold;margin-bottom:4px;text-align:right">Client (Name &amp; Signature)</div>'
-        +'<div style="border-top:1px solid #000;min-height:40px"></div></div>'
+      +'<div><div style="font-size:8.5px;font-weight:bold;margin-bottom:4px">GSN (Name &amp; Signature)</div><div style="border-top:1px solid #000;min-height:40px;padding:4px 2px;font-size:8.5px">'+esc(form.techName)+'</div></div>'
+      +'<div style="text-align:center"><div style="font-size:8.5px;font-weight:bold;margin-bottom:4px">Place and Date:</div><div style="border-top:1px solid #000;min-height:40px;padding:4px 2px;font-size:8.5px">'+esc(form.placeDate)+'</div></div>'
+      +'<div><div style="font-size:8.5px;font-weight:bold;margin-bottom:4px;text-align:right">Client (Name &amp; Signature)</div><div style="border-top:1px solid #000;min-height:40px"></div></div>'
     +'</div>'
     +'<div style="margin-top:12px;font-size:7.5px;border-top:1px solid #ccc;padding-top:4px;color:#555">'
       +'<b>Attention:</b> With the customer\'s signature all the work hours on this time sheet are legally recognized. Subsequent claims cannot be accepted.'
     +'</div>'
     +'</div>'
-    +'<script>window.onload=function(){setTimeout(function(){window.print();},400);}<\/script>'
+    +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},500);}</scr'+'ipt>'
     +'</body></html>';
 }
 
-function doPDF(){
-  var folio=getFolio();
-  var html=buildPDF(S.form,folio);
-  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  window.open(url,'_blank');
-  saveFolio(folio+1);
-  re({pdfDone:true,folio:folio+1});
-}
-
-// ── Styles ───────────────────────────────────────────────────
-var INP='width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #d0d7e3;font-size:15px;background:#f8fafd;color:#1a2a4a;margin-bottom:2px;box-sizing:border-box;';
-var LBL='display:block;font-size:11px;font-weight:700;color:#3a5080;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;';
-
-// ── Step 0: Proyecto ─────────────────────────────────────────
-function stepProyecto(f){
-  function fld(k,lbl,ph,v){
-    return '<div style="margin-bottom:14px"><label style="'+LBL+'">'+lbl+'</label>'
-      +'<input id="f_'+k+'" style="'+INP+'" placeholder="'+ph+'" value="'+esc(v)+'" oninput="rf({'+k+':this.value})"></div>';
-  }
-  return fld('projNr','Project Nr.','Ej. 2024-001',f.projNr)
-    +fld('orderNr','Customer Order Number','N\u00famero de orden',f.orderNr)
-    +fld('name','Nombre del Contacto','Nombre completo',f.name)
-    +fld('machNr','Machine Nr.','N\u00famero de m\u00e1quina',f.machNr)
-    +fld('type','Type / Modelo','Modelo de la m\u00e1quina',f.type)
-    +'<div style="margin-bottom:14px"><label style="'+LBL+'">Direcci\u00f3n del Cliente</label>'
-    +'<textarea style="'+INP+'resize:vertical;min-height:80px" placeholder="Direcci\u00f3n completa..." oninput="rf({addr:this.value})">'+esc(f.addr)+'</textarea></div>';
-}
-
-// ── Step 1: Servicio ─────────────────────────────────────────
-var SVC=[['startup','Machine Start Up','&#128295;'],['trouble','Troubleshooting','&#128269;'],
-  ['training','Training','&#128218;'],['warranty','Warranty','&#128737;'],
-  ['retool','Retooling','&#9881;'],['maint','Maintenance','&#128297;'],['others','Others','&#128203;']];
-function stepServicio(f){
-  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
-  for(var i=0;i<SVC.length;i++){
-    var k=SVC[i][0],lb=SVC[i][1],ic=SVC[i][2],on=f.svc[k];
-    h+='<button type="button" data-svc="'+k+'" onclick="toggleSvc(this.getAttribute(\'data-svc\'))" style="padding:14px 10px;border-radius:12px;border:'+(on?'2px solid #1a3a6b':'1.5px solid #d0d7e3')+';background:'+(on?'#e8eef8':'#f8fafd')+';text-align:left;display:flex;align-items:center;gap:8px;width:100%">'
-      +'<span style="font-size:20px">'+ic+'</span>'
-      +'<div><div style="font-size:12px;font-weight:700;color:'+(on?'#1a3a6b':'#555')+'">'+lb+'</div>'
-      +(on?'<div style="font-size:10px;color:#1a3a6b">&#10003; Seleccionado</div>':'')
-      +'</div></button>';
-  }
-  return h+'</div>';
-}
-
-// ── Step 2: Horas ────────────────────────────────────────────
-function tInp(id,val,ph){
-  return '<input type="text" inputmode="numeric" id="'+id+'" style="width:100%;padding:9px 6px;border-radius:8px;border:1.5px solid #d0d7e3;font-size:14px;background:#f8fafd;color:#1a2a4a;text-align:center;font-family:monospace;box-sizing:border-box" placeholder="'+ph+'" value="'+esc(val)+'" onblur="tBlur(\''+id+\'")"/>';
-}
-function stepHoras(f){
-  var tw=f.rows.reduce(function(s,r){return s+dayHours(r);},0);
-  var tt=f.rows.reduce(function(s,r){return s+(parseFloat(r.travel)||0);},0);
-  var h='<div style="font-size:11px;color:#555;margin-bottom:12px;background:#e8f0fa;border-radius:8px;padding:9px 12px;line-height:1.6">&#128161; Escribe sin dos puntos: <b>800</b> &rarr; 08:00 &bull; <b>1730</b> &rarr; 17:30<br>El total diario se calcula solo al salir del campo.</div>';
-  for(var i=0;i<f.rows.length;i++){
-    var r=f.rows[i],dh=dayHours(r);
-    h+='<div style="background:#f0f4fa;border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid #d8e2f0">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
-        +'<span style="font-family:monospace;font-size:11px;color:#1a3a6b;font-weight:700">D\u00CDA '+(i+1)+'</span>'
-        +'<span style="background:'+(dh>0?'#1a3a6b':'#ccc')+';color:white;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700">'+(dh>0?f2(dh)+' h':'sin datos')+'</span>'
-      +'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
-        +'<div><label style="'+LBL+'font-size:10px">Fecha (DD/MM)</label><input style="'+INP+'margin-bottom:0;font-family:monospace" placeholder="14/04" value="'+esc(r.date)+'" oninput="rr('+i+',{date:this.value})"></div>'
-        +'<div><label style="'+LBL+'font-size:10px">Observaci\u00f3n</label><input style="'+INP+'margin-bottom:0" placeholder="Nota..." value="'+esc(r.obs)+'" oninput="rr('+i+',{obs:this.value})"></div>'
-        +'<div><label style="'+LBL+'font-size:10px">&#127749; Ma\u00f1ana (de \u2013 a)</label>'
-          +'<div style="display:flex;gap:5px;align-items:center">'+tInp('t'+i+'mf',r.mf,'0800')+'<span style="color:#aaa">&ndash;</span>'+tInp('t'+i+'mt',r.mt,'1200')+'</div></div>'
-        +'<div><label style="'+LBL+'font-size:10px">&#127751; Tarde (de \u2013 a)</label>'
-          +'<div style="display:flex;gap:5px;align-items:center">'+tInp('t'+i+'af',r.af,'1300')+'<span style="color:#aaa">&ndash;</span>'+tInp('t'+i+'at',r.at,'1700')+'</div></div>'
-        +'<div><label style="'+LBL+'font-size:10px">Total Horas (auto)</label>'
-          +'<div style="padding:10px;border-radius:8px;background:'+(dh>0?'#ddeeff':'#ebebeb')+';font-size:17px;font-weight:700;color:#1a3a6b;font-family:monospace;text-align:center">'+(dh>0?f2(dh)+' h':'&mdash;')+'</div></div>'
-        +'<div><label style="'+LBL+'font-size:10px">Horas Viaje</label><input type="number" step="0.5" min="0" style="'+INP+'margin-bottom:0;font-family:monospace;text-align:center" placeholder="0" value="'+esc(r.travel)+'" oninput="rr('+i+',{travel:this.value})"></div>'
-      +'</div></div>';
-  }
-  h+='<div style="background:#1a3a6b;color:white;border-radius:12px;padding:14px 20px;display:flex;justify-content:space-around">'
-    +'<div style="text-align:center"><div style="font-size:10px;opacity:.65;margin-bottom:2px">TOTAL TRABAJO</div><div style="font-family:monospace;font-size:24px;font-weight:700">'+f2(tw)+'h</div></div>'
-    +'<div style="width:1px;background:rgba(255,255,255,.2)"></div>'
-    +'<div style="text-align:center"><div style="font-size:10px;opacity:.65;margin-bottom:2px">TOTAL VIAJE</div><div style="font-family:monospace;font-size:24px;font-weight:700">'+f2(tt)+'h</div></div>'
-    +'</div>';
-  return h;
-}
-
-// ── Step 3: Reporte ──────────────────────────────────────────
-function stepReporte(f){
-  var on=f.additionalReport;
-  return '<div style="margin-bottom:16px"><label style="'+LBL+'">&#128308; Fault / Falla</label><textarea style="'+INP+'resize:vertical;min-height:90px" placeholder="Describir la falla..." oninput="rf({fault:this.value})">'+esc(f.fault)+'</textarea></div>'
-    +'<div style="margin-bottom:16px"><label style="'+LBL+'">&#128993; Cause / Causa</label><textarea style="'+INP+'resize:vertical;min-height:90px" placeholder="Describir la causa ra\u00edz..." oninput="rf({cause:this.value})">'+esc(f.cause)+'</textarea></div>'
-    +'<div style="margin-bottom:16px"><label style="'+LBL+'">&#128994; Solution / Soluci\u00f3n</label><textarea style="'+INP+'resize:vertical;min-height:90px" placeholder="Describir la soluci\u00f3n..." oninput="rf({solution:this.value})">'+esc(f.solution)+'</textarea></div>'
-    +'<button type="button" onclick="rf({additionalReport:'+(on?'false':'true')+'})" style="width:100%;padding:14px;border-radius:10px;border:'+(on?'2px solid #1a3a6b':'1.5px solid #d0d7e3')+';background:'+(on?'#e8eef8':'#f8fafd')+';display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:'+(on?'#1a3a6b':'#666')+'">'
-    +'<span style="font-size:20px">'+(on?'&#9989;':'&#11036;')+'</span>Additional Report / Reporte Adicional</button>';
-}
-
-// ── Step 4: Cierre ───────────────────────────────────────────
-function stepCierre(f){
-  var tw=f.rows.reduce(function(s,r){return s+dayHours(r);},0);
-  return '<div style="margin-bottom:14px"><label style="'+LBL+'">Nombre del T\u00e9cnico GSN</label><input style="'+INP+'" placeholder="Nombre completo del t\u00e9cnico" value="'+esc(f.techName)+'" oninput="rf({techName:this.value})"></div>'
-    +'<div style="margin-bottom:20px"><label style="'+LBL+'">Lugar y Fecha</label><input style="'+INP+'" placeholder="Ej. Quer\u00e9taro, 14 Abril 2026" value="'+esc(f.placeDate)+'" oninput="rf({placeDate:this.value})"></div>'
-    +'<div style="background:#fff8e1;border:1.5px solid #f0c040;border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start">'
-      +'<span style="font-size:22px">&#9997;&#65039;</span>'
-      +'<div><div style="font-size:13px;font-weight:700;color:#7a5800;margin-bottom:3px">Firma del cliente</div>'
-        +'<div style="font-size:12px;color:#7a5800;line-height:1.5">El espacio de firma se deja en blanco en el PDF.<br>Env\u00edalo al cliente para que lo firme.</div></div>'
-    +'</div>'
-    +'<div style="background:#1a3a6b;color:white;border-radius:14px;padding:16px">'
-      +'<div style="font-size:11px;opacity:.65;margin-bottom:8px">RESUMEN DEL SERVICIO</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">'
-        +'<div><span style="opacity:.6">Folio:</span> <strong>#'+S.folio+'</strong></div>'
-        +'<div><span style="opacity:.6">M\u00e1quina:</span> <strong>'+esc(f.machNr||'\u2014')+'</strong></div>'
-        +'<div><span style="opacity:.6">Cliente:</span> <strong>'+esc(f.name||'\u2014')+'</strong></div>'
-        +'<div><span style="opacity:.6">Horas:</span> <strong>'+f2(tw)+'h</strong></div>'
-      +'</div>'
-    +'</div>'
-    +(S.pdfDone?'<div style="margin-top:14px;background:#e8f5e9;border:1px solid #4caf50;border-radius:10px;padding:13px;text-align:center;color:#2e7d32"><div style="font-size:14px;font-weight:700;margin-bottom:3px">&#10003; PDF generado</div><div style="font-size:11px">Se abri\u00f3 una nueva pesta\u00f1a &mdash; elige Imprimir &rarr; Guardar como PDF</div></div>':'');
+function doPDF() {
+  var folio = getFolio();
+  var html = buildPDF(S.form, folio);
+  var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  saveFolio(folio + 1);
+  setState({pdfDone: true, folio: folio + 1});
 }
 
 // ── Draw ─────────────────────────────────────────────────────
-var STEPS=['Proyecto','Servicio','Horas','Reporte','Cierre'];
-var TITLES=['Informaci\u00f3n del Proyecto','Tipo de Servicio','Registro de Horas','Reporte T\u00e9cnico','Datos de Cierre'];
-function draw(){
-  var f=S.form,st=S.step;
-  var tabs='';
-  for(var i=0;i<STEPS.length;i++){
-    var a=st===i,d=st>i;
-    tabs+='<button type="button" onclick="re({step:'+i+'})" style="flex:1;padding:5px 2px;border-radius:6px;border:none;background:'+(a?'#fff':d?'rgba(255,255,255,.35)':'rgba(255,255,255,.12)')+';color:'+(a?'#1a3a6b':d?'#c8daf5':'#7fa8d4')+';font-size:8.5px;font-weight:'+(a?'700':'500')+';text-transform:uppercase;cursor:pointer">'+STEPS[i]+'</button>';
+var STEPS = ['Proyecto','Servicio','Horas','Reporte','Cierre'];
+
+function draw() {
+  var f = S.form, st = S.step;
+  var totalWork  = f.rows.reduce(function(s,r){return s+dayHrs(r);},0);
+  var totalTravel= f.rows.reduce(function(s,r){return s+(parseFloat(r.travel)||0);},0);
+
+  // Header tabs
+  var tabs = '';
+  for (var i = 0; i < STEPS.length; i++) {
+    var a = st===i, dn = st>i;
+    tabs += '<button onclick="setState({step:'+i+'})" style="flex:1;padding:5px 2px;border-radius:6px;border:none;'
+      +'background:'+(a?'#fff':dn?'rgba(255,255,255,.35)':'rgba(255,255,255,.12)')+';'
+      +'color:'+(a?'#1a3a6b':dn?'#c8daf5':'#7fa8d4')+';font-size:8.5px;font-weight:'+(a?'700':'500')+';text-transform:uppercase;cursor:pointer">'+STEPS[i]+'</button>';
   }
-  var SEC='font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #1a3a6b;padding-bottom:4px;';
-  var content='<div style="'+SEC+'">'+TITLES[st]+'</div>';
-  if(st===0)content+=stepProyecto(f);
-  else if(st===1)content+=stepServicio(f);
-  else if(st===2)content+=stepHoras(f);
-  else if(st===3)content+=stepReporte(f);
-  else content+=stepCierre(f);
-  var isLast=st===STEPS.length-1;
-  var back=st>0?'<button type="button" onclick="re({step:'+(st-1)+'})" style="flex:1;padding:13px;border-radius:12px;border:1.5px solid #1a3a6b;background:white;color:#1a3a6b;font-size:15px;font-weight:600">&larr; Atr\u00e1s</button>':'';
-  var fwd=isLast
-    ?'<div style="flex:2;display:flex;gap:8px"><button type="button" onclick="doPDF()" style="flex:2;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#cc0000,#880000);color:white;font-size:14px;font-weight:700">&#128196; Generar PDF</button><button type="button" onclick="doReset()" style="flex:1;padding:13px;border-radius:12px;border:1.5px solid #cc0000;background:white;color:#cc0000;font-size:13px;font-weight:600">Nuevo</button></div>'
-    :'<button type="button" onclick="re({step:'+(st+1)+'})" style="flex:2;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#1a3a6b,#0d2244);color:white;font-size:15px;font-weight:700">Siguiente &rarr;</button>';
-  app.innerHTML=
-    '<div style="background:linear-gradient(135deg,#1a3a6b 0%,#0d2244 100%);padding:20px 20px 14px;color:white;padding-top:calc(20px + env(safe-area-inset-top,0px))">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+
+  var content = '';
+
+  // STEP 0 — Proyecto
+  if (st === 0) {
+    content = '<div class="sec">Informaci&oacute;n del Proyecto</div>'
+      + field('projNr', 'Project Nr.', 'Ej. 2024-001', f.projNr)
+      + field('orderNr', 'Customer Order Number', 'N&uacute;mero de orden', f.orderNr)
+      + field('name', 'Nombre del Contacto', 'Nombre completo', f.name)
+      + field('machNr', 'Machine Nr.', 'N&uacute;mero de m&aacute;quina', f.machNr)
+      + field('type', 'Type / Modelo', 'Modelo de la m&aacute;quina', f.type)
+      + '<div style="margin-bottom:14px"><label class="lbl">Direcci&oacute;n del Cliente</label>'
+      + '<textarea class="inp" style="resize:vertical;min-height:80px" placeholder="Direcci&oacute;n completa..." oninput="setForm({addr:this.value})">'+esc(f.addr)+'</textarea></div>';
+  }
+
+  // STEP 1 — Servicio
+  else if (st === 1) {
+    var svcs = [['startup','Machine Start Up'],['trouble','Troubleshooting'],['training','Training'],
+      ['warranty','Warranty'],['retool','Retooling'],['maint','Maintenance'],['others','Others']];
+    content = '<div class="sec">Tipo de Servicio</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+    for (var j = 0; j < svcs.length; j++) {
+      var k = svcs[j][0], lb = svcs[j][1], on = f.svc[k];
+      content += '<button class="svcbtn'+(on?' on':'')+'" onclick="toggleSvc(\''+k+'\')">'
+        +'<div><div style="font-size:12px;font-weight:700;color:'+(on?'#1a3a6b':'#555')+'">'+lb+'</div>'
+        +(on?'<div style="font-size:10px;color:#1a3a6b">&#10003; Seleccionado</div>':'')
+        +'</div></button>';
+    }
+    content += '</div>';
+  }
+
+  // STEP 2 — Horas
+  else if (st === 2) {
+    content = '<div class="sec">Registro de Horas</div>'
+      +'<div style="font-size:11px;color:#555;margin-bottom:12px;background:#e8f0fa;border-radius:8px;padding:9px 12px;line-height:1.6">'
+      +'&#128161; Escribe sin dos puntos: <b>800</b> &rarr; 08:00 &bull; <b>1730</b> &rarr; 17:30. El total se calcula solo.</div>';
+
+    for (var ri = 0; ri < f.rows.length; ri++) {
+      var row = f.rows[ri], dh = dayHrs(row);
+      content += '<div class="card">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+          +'<span style="font-family:monospace;font-size:11px;color:#1a3a6b;font-weight:700">D&Iacute;A '+(ri+1)+'</span>'
+          +'<span style="background:'+(dh>0?'#1a3a6b':'#ccc')+';color:white;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700">'+(dh>0?f2(dh)+' h':'sin datos')+'</span>'
+        +'</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+          +'<div><label class="lbl" style="font-size:10px">Fecha DD/MM</label>'
+            +'<input class="inp" style="margin-bottom:0;font-family:monospace" placeholder="14/04" value="'+esc(row.date)+'" oninput="setRow('+ri+',{date:this.value})"></div>'
+          +'<div><label class="lbl" style="font-size:10px">Observaci&oacute;n</label>'
+            +'<input class="inp" style="margin-bottom:0" placeholder="Nota..." value="'+esc(row.obs)+'" oninput="setRow('+ri+',{obs:this.value})"></div>'
+          +'<div><label class="lbl" style="font-size:10px">Ma&ntilde;ana (de &ndash; a)</label>'
+            +'<div style="display:flex;gap:5px;align-items:center">'
+              +'<input class="tinp" id="r'+ri+'mf" placeholder="0800" value="'+esc(row.mf)+'" onblur="handleTime(this,'+ri+',\'mf\')">'
+              +'<span style="color:#aaa">&ndash;</span>'
+              +'<input class="tinp" id="r'+ri+'mt" placeholder="1200" value="'+esc(row.mt)+'" onblur="handleTime(this,'+ri+',\'mt\')">'
+            +'</div></div>'
+          +'<div><label class="lbl" style="font-size:10px">Tarde (de &ndash; a)</label>'
+            +'<div style="display:flex;gap:5px;align-items:center">'
+              +'<input class="tinp" id="r'+ri+'af" placeholder="1300" value="'+esc(row.af)+'" onblur="handleTime(this,'+ri+',\'af\')">'
+              +'<span style="color:#aaa">&ndash;</span>'
+              +'<input class="tinp" id="r'+ri+'at" placeholder="1700" value="'+esc(row.at)+'" onblur="handleTime(this,'+ri+',\'at\')">'
+            +'</div></div>'
+          +'<div><label class="lbl" style="font-size:10px">Total Horas (auto)</label>'
+            +'<div style="padding:10px;border-radius:8px;background:'+(dh>0?'#ddeeff':'#ebebeb')+';font-size:17px;font-weight:700;color:#1a3a6b;font-family:monospace;text-align:center">'+(dh>0?f2(dh)+' h':'&mdash;')+'</div></div>'
+          +'<div><label class="lbl" style="font-size:10px">Horas Viaje</label>'
+            +'<input type="number" step="0.5" min="0" class="inp" style="margin-bottom:0;text-align:center;font-family:monospace" placeholder="0" value="'+esc(row.travel)+'" oninput="setRow('+ri+',{travel:this.value})"></div>'
+        +'</div></div>';
+    }
+
+    content += '<div style="background:#1a3a6b;color:white;border-radius:12px;padding:14px 20px;display:flex;justify-content:space-around">'
+      +'<div style="text-align:center"><div style="font-size:10px;opacity:.65;margin-bottom:2px">TOTAL TRABAJO</div><div style="font-family:monospace;font-size:24px;font-weight:700">'+f2(totalWork)+'h</div></div>'
+      +'<div style="width:1px;background:rgba(255,255,255,.2)"></div>'
+      +'<div style="text-align:center"><div style="font-size:10px;opacity:.65;margin-bottom:2px">TOTAL VIAJE</div><div style="font-family:monospace;font-size:24px;font-weight:700">'+f2(totalTravel)+'h</div></div>'
+      +'</div>';
+  }
+
+  // STEP 3 — Reporte
+  else if (st === 3) {
+    var on = f.additionalReport;
+    content = '<div class="sec">Reporte T&eacute;cnico</div>'
+      +'<div style="margin-bottom:16px"><label class="lbl">&#128308; Fault / Falla</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la falla..." oninput="setForm({fault:this.value})">'+esc(f.fault)+'</textarea></div>'
+      +'<div style="margin-bottom:16px"><label class="lbl">&#128993; Cause / Causa</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la causa..." oninput="setForm({cause:this.value})">'+esc(f.cause)+'</textarea></div>'
+      +'<div style="margin-bottom:16px"><label class="lbl">&#128994; Solution / Soluci&oacute;n</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la soluci&oacute;n..." oninput="setForm({solution:this.value})">'+esc(f.solution)+'</textarea></div>'
+      +'<button onclick="setForm({additionalReport:'+(on?'false':'true')+'})" style="width:100%;padding:14px;border-radius:10px;border:'+(on?'2px solid #1a3a6b':'1.5px solid #d0d7e3')+';background:'+(on?'#e8eef8':'#f8fafd')+';display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:'+(on?'#1a3a6b':'#666')+'">'
+      +'<span style="font-size:20px">'+(on?'&#9989;':'&#11036;')+'</span> Additional Report</button>';
+  }
+
+  // STEP 4 — Cierre
+  else {
+    content = '<div class="sec">Datos de Cierre</div>'
+      + field('techName', 'Nombre del T&eacute;cnico GSN', 'Nombre completo', f.techName)
+      + field('placeDate', 'Lugar y Fecha', 'Ej. Quer&eacute;taro, 14 Abril 2026', f.placeDate)
+      +'<div style="background:#fff8e1;border:1.5px solid #f0c040;border-radius:12px;padding:14px;margin-bottom:20px;display:flex;gap:10px">'
+        +'<span style="font-size:22px">&#9997;</span>'
+        +'<div><b style="color:#7a5800">Firma del cliente</b><br><span style="font-size:12px;color:#7a5800">Se deja en blanco en el PDF para que el cliente lo firme.</span></div>'
+      +'</div>'
+      +'<div style="background:#1a3a6b;color:white;border-radius:14px;padding:16px">'
+        +'<div style="font-size:11px;opacity:.65;margin-bottom:8px">RESUMEN</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">'
+          +'<div><span style="opacity:.6">Folio:</span> <b>#'+S.folio+'</b></div>'
+          +'<div><span style="opacity:.6">M&aacute;quina:</span> <b>'+esc(f.machNr||'&mdash;')+'</b></div>'
+          +'<div><span style="opacity:.6">Cliente:</span> <b>'+esc(f.name||'&mdash;')+'</b></div>'
+          +'<div><span style="opacity:.6">Horas:</span> <b>'+f2(totalWork)+'h</b></div>'
+        +'</div>'
+      +'</div>'
+      +(S.pdfDone?'<div style="margin-top:14px;background:#e8f5e9;border:1px solid #4caf50;border-radius:10px;padding:13px;text-align:center;color:#2e7d32"><b>&#10003; PDF listo</b><br><span style="font-size:11px">Elige Guardar como PDF en el di&aacute;logo de impresi&oacute;n</span></div>':'');
+  }
+
+  // Nav buttons
+  var back = st > 0
+    ? '<button class="navbtn" onclick="setState({step:'+(st-1)+'})" style="background:white;color:#1a3a6b;border:1.5px solid #1a3a6b">&larr; Atr&aacute;s</button>'
+    : '';
+  var fwd = st < STEPS.length-1
+    ? '<button class="navbtn" onclick="setState({step:'+(st+1)+'})" style="flex:2;background:linear-gradient(135deg,#1a3a6b,#0d2244);color:white;border:none">Siguiente &rarr;</button>'
+    : '<button class="navbtn" onclick="doPDF()" style="flex:2;background:linear-gradient(135deg,#cc0000,#880000);color:white;border:none">&#128196; Generar PDF</button>'
+      +'<button class="navbtn" onclick="doReset()" style="background:white;color:#cc0000;border:1.5px solid #cc0000;font-size:13px">Nuevo</button>';
+
+  document.getElementById('app').innerHTML =
+    '<div style="background:linear-gradient(135deg,#1a3a6b,#0d2244);padding:20px 20px 14px;color:white;padding-top:calc(20px + env(safe-area-inset-top,0px))">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
         +'<div><div style="font-family:monospace;font-size:10px;color:#7fa8d4;letter-spacing:2px;margin-bottom:2px">CUSTOMER SERVICE ORDER</div>'
           +'<div style="font-size:21px;font-weight:700">GSN Maquinaria</div></div>'
         +'<div style="text-align:right"><div style="font-size:10px;color:#7fa8d4">FOLIO</div>'
           +'<div style="font-family:monospace;font-size:26px;font-weight:700;color:#ff4444">#'+S.folio+'</div></div>'
       +'</div>'
-      +'<div style="display:flex;gap:5px;margin-top:14px">'+tabs+'</div>'
+      +'<div style="display:flex;gap:5px">'+tabs+'</div>'
     +'</div>'
-    +'<div style="flex:1;padding:20px 16px 110px;overflow-y:auto">'+content+'</div>'
-    +'<div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:white;border-top:1px solid #e0e8f0;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;box-shadow:0 -4px 20px rgba(0,0,0,.08);z-index:100">'
+    +'<div style="padding:20px 16px 110px;overflow-y:auto;min-height:calc(100vh - 160px)">'+content+'</div>'
+    +'<div style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e0e8f0;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;box-shadow:0 -4px 20px rgba(0,0,0,.08)">'
       +back+fwd
     +'</div>';
 }
 
-// ── Handlers ─────────────────────────────────────────────────
-function toggleSvc(k){var s=Object.assign({},S.form.svc);s[k]=!s[k];rf({svc:s});}
-function tBlur(id){
-  var el=document.getElementById(id);
-  if(!el)return;
-  var fmt=parseTime(el.value);
-  el.value=fmt;
-  var row=parseInt(id.charAt(1));
-  var fld=id.slice(2);
-  var p={};p[fld]=fmt;
-  rr(row,p);
+function field(key, lbl, ph, val) {
+  return '<div style="margin-bottom:14px"><label class="lbl">'+lbl+'</label>'
+    +'<input class="inp" placeholder="'+ph+'" value="'+esc(val)+'" oninput="setForm({'+key+':this.value})"></div>';
 }
-function doReset(){re({form:emptyForm(),step:0,pdfDone:false,folio:getFolio()});}
+
+// ── Handlers ─────────────────────────────────────────────────
+function toggleSvc(k) {
+  var s = Object.assign({}, S.form.svc);
+  s[k] = !s[k];
+  setForm({svc: s});
+}
+function handleTime(el, rowIndex, field) {
+  var fmt = parseTime(el.value);
+  el.value = fmt;
+  var patch = {};
+  patch[field] = fmt;
+  setRow(rowIndex, patch);
+}
+function doReset() {
+  setState({form: emptyForm(), step: 0, pdfDone: false, folio: getFolio()});
+}
 
 // ── PWA ──────────────────────────────────────────────────────
-var dp=null;
-window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;document.getElementById('install-banner').classList.add('show');});
-document.getElementById('btn-install').addEventListener('click',function(){if(!dp)return;dp.prompt();dp.userChoice.then(function(){dp=null;});document.getElementById('install-banner').classList.remove('show');});
-document.getElementById('btn-dismiss').addEventListener('click',function(){document.getElementById('install-banner').classList.remove('show');});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}
+var dp = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault(); dp = e;
+});
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(function(){});
+}
 
+// ── Boot ─────────────────────────────────────────────────────
 draw();
 </script>
 </body>
