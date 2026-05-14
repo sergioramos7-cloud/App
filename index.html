@@ -225,7 +225,7 @@ function draw() {
       + field('machNr', 'Machine Nr.', 'N&uacute;mero de m&aacute;quina', f.machNr)
       + field('type', 'Type / Modelo', 'Modelo de la m&aacute;quina', f.type)
       + '<div style="margin-bottom:14px"><label class="lbl">Direcci&oacute;n del Cliente</label>'
-      + '<textarea class="inp" style="resize:vertical;min-height:80px" placeholder="Direcci&oacute;n completa..." oninput="setForm({addr:this.value})">'+esc(f.addr)+'</textarea></div>';
+      + '<textarea class="inp" style="resize:vertical;min-height:80px" placeholder="Direcci&oacute;n completa..." onchange="setForm({addr:this.value})">'+esc(f.addr)+'</textarea></div>';
   }
 
   // STEP 1 — Servicio
@@ -258,9 +258,9 @@ function draw() {
         +'</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
           +'<div><label class="lbl" style="font-size:10px">Fecha DD/MM</label>'
-            +'<input class="inp" style="margin-bottom:0;font-family:monospace" placeholder="14/04" value="'+esc(row.date)+'" oninput="setRow('+ri+',{date:this.value})"></div>'
+            +'<input class="inp" style="margin-bottom:0;font-family:monospace" placeholder="14/04" value="'+esc(row.date)+'" onchange="setRow('+ri+',{date:this.value})"></div>'
           +'<div><label class="lbl" style="font-size:10px">Observaci&oacute;n</label>'
-            +'<input class="inp" style="margin-bottom:0" placeholder="Nota..." value="'+esc(row.obs)+'" oninput="setRow('+ri+',{obs:this.value})"></div>'
+            +'<input class="inp" style="margin-bottom:0" placeholder="Nota..." value="'+esc(row.obs)+'" onchange="setRow('+ri+',{obs:this.value})"></div>'
           +'<div><label class="lbl" style="font-size:10px">Ma&ntilde;ana (de &ndash; a)</label>'
             +'<div style="display:flex;gap:5px;align-items:center">'
               +'<input class="tinp" id="r'+ri+'mf" placeholder="0800" value="'+esc(row.mf)+'" onblur="handleTime(this,'+ri+',\'mf\')">'
@@ -276,7 +276,7 @@ function draw() {
           +'<div><label class="lbl" style="font-size:10px">Total Horas (auto)</label>'
             +'<div style="padding:10px;border-radius:8px;background:'+(dh>0?'#ddeeff':'#ebebeb')+';font-size:17px;font-weight:700;color:#1a3a6b;font-family:monospace;text-align:center">'+(dh>0?f2(dh)+' h':'&mdash;')+'</div></div>'
           +'<div><label class="lbl" style="font-size:10px">Horas Viaje</label>'
-            +'<input type="number" step="0.5" min="0" class="inp" style="margin-bottom:0;text-align:center;font-family:monospace" placeholder="0" value="'+esc(row.travel)+'" oninput="setRow('+ri+',{travel:this.value})"></div>'
+            +'<input type="number" step="0.5" min="0" class="inp" style="margin-bottom:0;text-align:center;font-family:monospace" placeholder="0" value="'+esc(row.travel)+'" onchange="setRow('+ri+',{travel:this.value})"></div>'
         +'</div></div>';
     }
 
@@ -291,9 +291,9 @@ function draw() {
   else if (st === 3) {
     var on = f.additionalReport;
     content = '<div class="sec">Reporte T&eacute;cnico</div>'
-      +'<div style="margin-bottom:16px"><label class="lbl">&#128308; Fault / Falla</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la falla..." oninput="setForm({fault:this.value})">'+esc(f.fault)+'</textarea></div>'
-      +'<div style="margin-bottom:16px"><label class="lbl">&#128993; Cause / Causa</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la causa..." oninput="setForm({cause:this.value})">'+esc(f.cause)+'</textarea></div>'
-      +'<div style="margin-bottom:16px"><label class="lbl">&#128994; Solution / Soluci&oacute;n</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la soluci&oacute;n..." oninput="setForm({solution:this.value})">'+esc(f.solution)+'</textarea></div>'
+      +'<div style="margin-bottom:16px"><label class="lbl">&#128308; Fault / Falla</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la falla..." onchange="setForm({fault:this.value})">'+esc(f.fault)+'</textarea></div>'
+      +'<div style="margin-bottom:16px"><label class="lbl">&#128993; Cause / Causa</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la causa..." onchange="setForm({cause:this.value})">'+esc(f.cause)+'</textarea></div>'
+      +'<div style="margin-bottom:16px"><label class="lbl">&#128994; Solution / Soluci&oacute;n</label><textarea class="inp" style="resize:vertical;min-height:90px" placeholder="Describir la soluci&oacute;n..." onchange="setForm({solution:this.value})">'+esc(f.solution)+'</textarea></div>'
       +'<button onclick="setForm({additionalReport:'+(on?'false':'true')+'})" style="width:100%;padding:14px;border-radius:10px;border:'+(on?'2px solid #1a3a6b':'1.5px solid #d0d7e3')+';background:'+(on?'#e8eef8':'#f8fafd')+';display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:'+(on?'#1a3a6b':'#666')+'">'
       +'<span style="font-size:20px">'+(on?'&#9989;':'&#11036;')+'</span> Additional Report</button>';
   }
@@ -346,7 +346,7 @@ function draw() {
 
 function field(key, lbl, ph, val) {
   return '<div style="margin-bottom:14px"><label class="lbl">'+lbl+'</label>'
-    +'<input class="inp" placeholder="'+ph+'" value="'+esc(val)+'" oninput="setForm({'+key+':this.value})"></div>';
+    +'<input class="inp" placeholder="'+ph+'" value="'+esc(val)+'" onchange="setForm({'+key+':this.value})"></div>';
 }
 
 // ── Handlers ─────────────────────────────────────────────────
