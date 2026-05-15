@@ -84,7 +84,7 @@ function buildPDF(form, folio) {
   var tw = form.rows.reduce(function(s,r){return s+dayHrs(r);},0);
   var tt = form.rows.reduce(function(s,r){return s+(parseFloat(r.travel)||0);},0);
   var base = baseURL();
-  var logoURL = base + 'logo.jpg';
+  var logoURL = base + 'logo.png';
   var kpiURL  = base + 'kpi.jpg';
   var yy = currentYY();
 
